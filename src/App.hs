@@ -5,7 +5,6 @@ import Expr.Parser
 import Generador
 import Histograma
 import qualified Numeric
-import TinyApp.Repl
 import Util
 
 -- | Función auxiliar para probar el histograma con generadores de números aleatorios.
@@ -53,21 +52,6 @@ probarHistograma rango cantidadMuestras g =
 
 cantidadDeMuestras :: Int
 cantidadDeMuestras = 100000
-
-app :: Gen -> Sandbox Gen
-app g =
-  Sandbox
-    { initialize = g,
-      prompt = \_ -> "incierticalc> ",
-      update = \input g ->
-        if input `elem` ["", ":q", "exit", "quit"]
-          then (g, "Adiós!", Exit)
-          else case parseEither input of
-            Left _ -> (g, "Error en la expresión", Continue)
-            Right expr ->
-              let (h, g') = evalHistograma 11 cantidadDeMuestras expr g
-               in (g', mostrarHistograma h, Continue)
-    }
 
 mostrarHistograma :: Histograma -> String
 mostrarHistograma h =
