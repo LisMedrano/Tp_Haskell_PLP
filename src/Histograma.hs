@@ -32,11 +32,28 @@ data Histograma = Histograma Float Float [Int]
 -- valores en el rango y 2 casilleros adicionales para los valores fuera del rango.
 -- Require que @l < u@ y @n >= 1@.
 vacio :: Int -> (Float, Float) -> Histograma
-vacio n (l, u) = error "COMPLETAR EJERCICIO 3"
+-- Tomamos l como inicio del intervalo de la segunda casilla (-inf, l) [l, l+t] ...
+-- tamIntervalo calcula el tamaño de cada intervaloe
+-- La lista tiene n + 2 lugares, n para los del rango y 2 para los que estan fuera
+vacio n (l, u) = Histograma l (tamIntervalo l u n) (replicate (n + 2) 0)
+  where
+    tamIntervalo :: Float -> Float -> Int -> Float
+    tamIntervalo l u n = (u - l) / fromIntegral n
+
 
 -- | Agrega un valor al histograma.
 agregar :: Float -> Histograma -> Histograma
-agregar x _ = error "COMPLETAR EJERCICIO 4"
+-- l y t se mantienen, pero en la lista aumento uno al intervalo al que pertenece x
+agregar x (Histograma l t ls) = Histograma l t (actualizarElem (intervaloDe x) (1 +) ls)
+  where
+    intervaloDe :: Float -> Int
+    intervaloDe x
+      | x < l = 0 -- si x esta por debajo del interval, primer casillero
+      | x > upper (Histograma l t ls) = length ls - 1 -- si x esta por encima, ultimo casillero
+      | otherwise = 1 + floor ((x - l) / t) -- si no, va a l cassillero que corresponde
+    upper :: Histograma -> Float
+    -- aux para encontrar "u", el borde superior
+    upper (Histograma l t ls) = l + t * (fromIntegral (length ls) - 2)
 
 -- | Arma un histograma a partir de una lista de números reales con la cantidad de casilleros y rango indicados.
 histograma :: Int -> (Float, Float) -> [Float] -> Histograma
