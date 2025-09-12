@@ -41,7 +41,13 @@ testsAlinearDerecha =
   test
     [ alinearDerecha 6 "hola" ~?= "  hola",
       alinearDerecha 10 "incierticalc" ~?= "incierticalc",
-      completar
+      alinearDerecha 0 "noAgregaEspacios" ~?= "noAgregaEspacios",
+      alinearDerecha (-1) "negativo" ~?= "negativo",
+      alinearDerecha 14 "espaciosJustos" ~?= "espaciosJustos",
+      alinearDerecha 1 "" ~?= " ",
+      alinearDerecha 0 "" ~?= "",
+      alinearDerecha 1 " " ~?= " ",
+      alinearDerecha 12 " conEspacio" ~?= "  conEspacio"
     ]
 
 testsActualizarElem :: Test
@@ -49,7 +55,11 @@ testsActualizarElem =
   test
     [ actualizarElem 0 (+ 10) [1, 2, 3] ~?= [11, 2, 3],
       actualizarElem 1 (+ 10) [1, 2, 3] ~?= [1, 12, 3],
-      completar
+      actualizarElem 2 (+ 10) [1, 2, 3] ~?= [1, 2, 13],
+      actualizarElem 3 (+ 10) [1, 2, 3] ~?= [1, 2, 3],
+      actualizarElem (-1) (+ 10) [1, 2, 3] ~?= [1, 2, 3],
+      actualizarElem 0 (+ 1) [1, 2, 3] ~?= [2, 2, 3],
+      actualizarElem 0 (+ 1) [] ~?= []
     ]
 
 testsVacio :: Test

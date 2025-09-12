@@ -3,7 +3,10 @@ module Util where
 -- | @alinearDerecha n s@ agrega espacios a la izquierda de @s@ hasta que su longitud sea @n@.
 -- Si @s@ ya tiene longitud @>= n@, devuelve @s@.
 alinearDerecha :: Int -> String -> String
-alinearDerecha n s = foldr (:) s (replicate (max 0 (n - length s)) ' ')
+alinearDerecha n s = foldr (:) s listaEspaciosNecesarios
+  where
+    listaEspaciosNecesarios = replicate cantidadEspacios ' '
+    cantidadEspacios = max 0 (n - length s)
 -- creamos una lista con la cant de ' ' necesarios
 -- vamos haciendo ' ' : (' ' : (... : s)) con foldr
 
