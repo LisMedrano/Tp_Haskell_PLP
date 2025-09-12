@@ -112,7 +112,7 @@ casPorcentaje (Casillero _ _ _ p) = p
 casilleros :: Histograma -> [Casillero]
 casilleros (Histograma i t cs) = zipWith4 Casillero limiteInf limiteSup cs p
   where
-    cantidadesTotal = map (++) cs
+    cantidadesTotal = sum cs
     n = length cs - 1
     limiteInf = infinitoNegativo : [i ,i + t, i+(t*2)... i + (t*n)]
     limiteSup = [i ,i + t, i+(t*2)... i + (t*n)] : infinitoPositivo
