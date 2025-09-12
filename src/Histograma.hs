@@ -110,7 +110,7 @@ casPorcentaje (Casillero _ _ _ p) = p
 
 -- | Dado un histograma, devuelve la lista de casilleros con sus límites, cantidad y porcentaje.
 casilleros :: Histograma -> [Casillero]
-casilleros (Histograma i t cs) = zipWith4 Casillero limiteInf limiteSup cs p
+casilleros (Histograma i t cs) = zipWith4 Casillero limiteInf limiteSup cs porcentaje
   where
     cantidadesTotal = sum cs
     n = length cs - 1
