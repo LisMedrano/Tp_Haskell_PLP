@@ -78,7 +78,14 @@ evalHistograma m n expr = armarHistograma m n (eval expr)
 -- | Mostrar las expresiones, pero evitando algunos paréntesis innecesarios.
 -- En particular queremos evitar paréntesis en sumas y productos anidados.
 mostrar :: Expr -> String
-mostrar = error "COMPLETAR EJERCICIO 11"
+mostrar e = recrExpr show (\a b -> show a ++ "~" ++ show b)
+                     (\str1 str2 e1 e2 -> maybeParen (esConstrRecursivoDistintoDe e1 CESuma) str1 ++ " + " ++ maybeParen (esConstrRecursivoDistintoDe e2 CESuma) str2)
+                     (\str1 str2 e1 e2 -> maybeParen (esConstrRecursivo e1) str1 ++ " - " ++ maybeParen (esConstrRecursivo e2) str2)
+                     (\str1 str2 e1 e2 -> maybeParen (esConstrRecursivoDistintoDe e1 CEMult) str1 ++ " * " ++ maybeParen (esConstrRecursivoDistintoDe e2 CEMult) str2)
+                     (\str1 str2 e1 e2 -> maybeParen (esConstrRecursivo e1) str1 ++ " / " ++ maybeParen (esConstrRecursivo e2) str2) e
+  where 
+    esConstrRecursivo e = constructor e /= CEConst && constructor e /= CERango
+    esConstrRecursivoDistintoDe e c = esConstrRecursivo e && constructor e /= c
 
 data ConstructorExpr = CEConst | CERango | CESuma | CEResta | CEMult | CEDiv
   deriving (Show, Eq)
