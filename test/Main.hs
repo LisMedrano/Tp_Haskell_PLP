@@ -34,6 +34,7 @@ allTests =
       "Expr.Parser.parse" ~: testsParse,
       "App.mostrarFloat" ~: testsMostrarFloat,
       "App.mostrarHistograma" ~: testsMostrarHistograma
+      
     ]
 
 testsAlinearDerecha :: Test
@@ -76,8 +77,8 @@ testsVacio =
               Casillero 2 4 0 0,
               Casillero 4 6 0 0,
               Casillero 6 infinitoPositivo 0 0
-            ],
-      completar
+            ]
+      
     ]
 
 testsAgregar :: Test
@@ -104,15 +105,15 @@ testsAgregar =
                   Casillero 2 4 0 0,
                   Casillero 4 6 0 0,
                   Casillero 6 infinitoPositivo 0 0
-                ],
-          completar
+                ]
+         
         ]
 
 testsHistograma :: Test
 testsHistograma =
   test
-    [ histograma 4 (1, 5) [1, 2, 3] ~?= agregar 3 (agregar 2 (agregar 1 (vacio 4 (1, 5)))),
-      completar
+    [ histograma 4 (1, 5) [1, 2, 3] ~?= agregar 3 (agregar 2 (agregar 1 (vacio 4 (1, 5))))
+     
     ]
 
 testsCasilleros :: Test
@@ -131,21 +132,45 @@ testsCasilleros =
               Casillero 2.0 4.0 1 100.0,
               Casillero 4.0 6.0 0 0.0,
               Casillero 6.0 infinitoPositivo 0 0.0
-            ],
-      completar
+            ]
+
     ]
 
 testsRecr :: Test
 testsRecr =
   test
-    [ completar
+    [ -- True: en la raíz los dos hijos son iguales
+      hayNodoConSubarbolesIguales (Suma (Const 1) (Const 1)) ~?= True,
+
+      -- False: en la raíz (2) != (3) 
+      hayNodoConSubarbolesIguales (Mult (Const 2) (Const 3)) ~?= False,
+
+      -- True: más profundo; los dos SUMA internos son iguales
+      hayNodoConSubarbolesIguales
+        (Suma (Suma (Const 1) (Const 2)) (Suma (Const 1) (Const 2)))
+        ~?= True
     ]
+  where
+    hayNodoConSubarbolesIguales :: Expr -> Bool
+    hayNodoConSubarbolesIguales = recrExpr (const False) (\_ _ -> False) operacion operacion operacion operacion
+                                  where
+                                    operacion reci recd i d =  reci || recd || (i==d) 
+                                                                          
+
 
 testsFold :: Test
 testsFold =
   test
-    [ completar
+    [ tamFold (Const 5) ~?= 1,
+      tamFold (Suma (Resta (Const 1) (Const 2)) (Mult (Const 3) (Const 4))) ~?= 7,
+      tamFold (Div (Suma (Const 1) (Const 2)) (Rango 0 1)) ~?= 5
     ]
+  where
+    tamFold :: Expr -> Int 
+    tamFold = foldExpr (const 1) (\_ _ -> 1) operacion operacion operacion operacion
+                                  where
+                                    operacion reci recd = 1 + reci + recd  
+
 
 testsEval :: Test
 testsEval =
@@ -154,7 +179,10 @@ testsEval =
       fst (eval (Suma (Rango 1 5) (Const 1)) (genNormalConSemilla 0)) ~?= 3.7980492,
       -- el primer rango evalua a 2.7980492 y el segundo a 3.1250308
       fst (eval (Suma (Rango 1 5) (Rango 1 5)) (genNormalConSemilla 0)) ~?= 5.92308,
-      completar
+      -- 
+      fst (eval (Div (Const 8) (Const 4)) genFijo) ~?= 2.0,
+      
+      fst (eval (Suma (Const 1) (Rango 1 5)) (genNormalConSemilla 0)) ~?= 3.7980492
     ]
 
 testsArmarHistograma :: Test
