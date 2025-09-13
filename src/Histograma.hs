@@ -74,6 +74,6 @@ casilleros (Histograma i t cs) = zipWith4 Casillero limiteInf limiteSup cs porce
                       then 1
                       else sum cs
     n = length cs - 2
-    limiteInf = infinitoNegativo ++ [ i + fromIntegral k * t | k <- [0 .. n] ]
+    limiteInf = [infinitoNegativo] ++ [ i + fromIntegral k * t | k <- [0 .. n] ]
     limiteSup = [ i + fromIntegral k * t | k <- [0 .. n] ] ++ [infinitoPositivo]
-    porcentaje = map (\c -> c/cantidadesTotal * 100) cs
+    porcentaje = map (\c -> (fromIntegral c / fromIntegral cantidadesTotal) * 100) cs
