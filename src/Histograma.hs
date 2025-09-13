@@ -70,8 +70,10 @@ casPorcentaje (Casillero _ _ _ p) = p
 casilleros :: Histograma -> [Casillero]
 casilleros (Histograma i t cs) = zipWith4 Casillero limiteInf limiteSup cs porcentaje
   where
-    cantidadesTotal = sum cs
+    cantidadesTotal = if sum cs == 0  --en caso que la suma sea 0 al momento de calcular el porcentaje se pueda calcular la division
+                      then 1
+                      else sum cs
     n = length cs - 2
-    limiteInf = infinitoNegativo : [ i + fromIntegral k * t | k <- [0 .. n] ]
-    limiteSup = [i ,i + t, i+(t*2)... i + (t*n)] ++ [infinitoPositivo]
+    limiteInf = infinitoNegativo ++ [ i + fromIntegral k * t | k <- [0 .. n] ]
+    limiteSup = [ i + fromIntegral k * t | k <- [0 .. n] ] ++ [infinitoPositivo]
     porcentaje = map (\c -> c/cantidadesTotal * 100) cs
