@@ -18,7 +18,7 @@ completar = TestCase (assertFailure "COMPLETAR")
 
 allTests :: Test
 allTests =
-  test
+  test 
     [ "Ej 1 - Util.alinearDerecha" ~: testsAlinearDerecha,
       "Ej 2 - Util.actualizarElem" ~: testsActualizarElem,
       "Ej 3 - Histograma.vacio" ~: testsVacio,
@@ -221,18 +221,64 @@ testsEval =
       -- 
       fst (eval (Div (Const 8) (Const 4)) genFijo) ~?= 2.0,
       
-      fst (eval (Suma (Const 1) (Rango 1 5)) (genNormalConSemilla 0)) ~?= 3.7980492
+      fst (eval (Suma (Const 1) (Rango 1 5)) (genNormalConSemilla 0)) ~?= 3.7980492,
+
+      -- Probamos que un rango de x a x es lo mismo que evaluar directamente x
+      fst (eval (Const 2) (genNormalConSemilla 4)) ~?= 
+      fst (eval (Rango 2 2) (genNormalConSemilla 4))
     ]
 
 testsArmarHistograma :: Test
 testsArmarHistograma =
   test
-    [completar]
+    [ casilleros (fst (armarHistograma 3 3 (dameUno (1,5)) (genNormalConSemilla 5))) ~?=[Casillero infinitoNegativo 1.9035962 0 0.0,
+       Casillero 1.9035962 2.8586945999999998 1 (1/3 * 100),
+       Casillero 2.8586945999999998 3.813793 1 (1/3 * 100), 
+       Casillero 3.813793 4.7688914 1 (1/3 * 100),
+       Casillero 4.7688914 infinitoPositivo 0 0.0],
+      
+      -- Probamos que con muchos valores si llega a cubrir los valores fuera de rango
+      -- a diferencia de con pocos valores que queda con 0 elementos
+      casilleros (fst (armarHistograma 3 10000 (dameUno (1,5)) (genNormalConSemilla 7))) ~?=[Casillero infinitoNegativo 1.0287318 263 (263/10000 * 100),
+       Casillero 1.0287318 2.3566919000000004 2304 (2304/10000 * 100),
+       Casillero 2.3566919000000004 3.6846520000000003 4852 (4852/10000 * 100), 
+       Casillero 3.6846520000000003 5.01261213 2338 (2338/10000 * 100),
+       Casillero 5.01261213 infinitoPositivo 243 (243/10000 * 100)],
+
+      -- Probamos que si ponemos siempre el mismo valor, caen todos en el mismo casillero
+      casilleros (fst (armarHistograma 4 3 (\x -> (2,x)) (genNormalConSemilla 7))) ~?=[Casillero infinitoNegativo 1.0 0 0.0,
+       Casillero 1.0 1.5 0 0.0,
+       Casillero 1.5 2.0 0 0.0, 
+       Casillero 2.0 2.5 3 100.0,
+       Casillero 2.5 3.0 0 0.0,
+       Casillero 3.0 infinitoPositivo 0 0.0]
+    ]
 
 testsEvalHistograma :: Test
 testsEvalHistograma =
   test
-    [completar]
+    [-- Probamos que se distribuyen os valores correctamente en diferentes casilleros
+    -- si la expresion contiene un rango
+    casilleros (fst (evalHistograma 3 4 (Rango 1 3) (genNormalConSemilla 4))) ~?= 
+    [Casillero infinitoNegativo 1.2331247 0 0.0,
+     Casillero 1.2331247 1.57619244 1 (1/4 * 100),
+     Casillero 1.57619244 1.9192603 2 (2/4 * 100),
+     Casillero 1.9192603 2.26232792 1 (1/4 * 100),
+     Casillero 2.26232792 infinitoPositivo 0 0.0],
+     
+    -- Probamos que si la expresion no tiene un rango (es constante) los valores caen siempre en el mismo casillero
+    casilleros (fst (evalHistograma 3 4 (Const 2) (genNormalConSemilla 4))) ~?= 
+    [Casillero infinitoNegativo 1.0 0 0.0,
+     Casillero 1.0 1.6666667 0 0.0,
+     Casillero 1.6666667 2.3333334 4 100.0,
+     Casillero 2.3333334 3.0000001 0 0.0,
+     Casillero 3.0000001 infinitoPositivo 0 0.0]
+
+    -- Aclaracion: No hacemos tests con expresiones mas complejas como sumas, restas, etc
+    -- porque nos interesa ver como caen los valores finales en el histograma
+    -- y no que se calculen bien, ya que eso es parte de los tests de la funcion eval
+    -- que evalua expresiones
+    ]
 
 testsParse :: Test
 testsParse =

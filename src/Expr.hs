@@ -9,7 +9,7 @@ module Expr
   )
 where
 
-import Generador ( G, Gen, dameUno, muestra, rango95 )
+import Generador ( G, Gen, dameUno, muestra, rango95, genNormalConSemilla )
 import Histograma ( Histograma, histograma )
 
 -- | Expresiones aritméticas con rangos
@@ -60,13 +60,24 @@ operacion op fl fr g0 = (\(vL, g1) ->(\(vR, g2) -> (op vL vR, g2)) (fr g1)) (fl 
 armarHistograma :: Int -> Int -> G Float -> G Histograma -- armarHistograma :: Int -> Int -> (Gen -> (Float, Gen)) -> (Gen -> (Histograma, Gen))
 armarHistograma m n f g = (\(xs,g1)-> (\(a,b)-> (histograma m (a,b) xs, g1) ) (rango95 xs)) (muestra f n g)
 
-
-
 -- | @evalHistograma m n e g@ evalúa la expresión @e@ usando el generador @g@ @n@ veces
 -- devuelve un histograma con @m@ casilleros y rango calculado con @rango95@ para abarcar el 95% de confianza de los valores.
 -- @n@ debe ser mayor que 0.
 evalHistograma :: Int -> Int -> Expr -> G Histograma
 evalHistograma m n expr = armarHistograma m n (eval expr)
+
+-- >>> evalHistograma 3 4 ((Rango 1 3)) (genNormalConSemilla 4)
+-- (Histograma 1.2331247 0.34306774 [0,1,2,1,0],<Gen>)
+
+-- >>> evalHistograma 3 4 (Const 2) (genNormalConSemilla 4)
+-- (Histograma 1.0 0.6666667 [0,0,4,0,0],<Gen>)
+
+-- >>> evalHistograma 3 4 ((Rango 2 2)) (genNormalConSemilla 4)
+-- (Histograma 1.0 0.6666667 [0,0,4,0,0],<Gen>)
+
+-- >>> (\(x,y) -> take 4 [(x,x+i*y) | i <- [1..]]) (1.0, 0.6666667)
+-- [(1.0,1.6666667),(1.0,2.3333334),(1.0,3.0000001),(1.0,3.6666668)]
+
 
 -- Podemos armar histogramas que muestren las n evaluaciones en m casilleros.
 -- >>> evalHistograma 11 10 (Suma (Rango 1 5) (Rango 100 105)) (genNormalConSemilla 0)
