@@ -77,8 +77,19 @@ testsVacio =
               Casillero 2 4 0 0,
               Casillero 4 6 0 0,
               Casillero 6 infinitoPositivo 0 0
-            ]
-      
+            ], 
+      casilleros (vacio 2 (-5, -1)) -- caso rangos negativos
+        -?= [ Casillero infinitoNegativo -5 0 0,
+              Casillero -5 -3 0 0,
+              Casillero -3 -1 0 0,
+              Casillero -1 infinitoPositivo 0 0
+            ],
+        casilleros (vacio 2 (1.5, 5.5)) -- caso con rangos con coma
+        -?= [ Casillero infinitoNegativo 1.5 0 0,
+              Casillero 1.5 3.5 0 0,
+              Casillero 3.5 5.5 0 0,
+              Casillero 5.5 infinitoPositivo 0 0
+            ] 
     ]
 
 testsAgregar :: Test
@@ -105,6 +116,18 @@ testsAgregar =
                   Casillero 2 4 0 0,
                   Casillero 4 6 0 0,
                   Casillero 6 infinitoPositivo 0 0
+                ],
+          casilleros (agregar 6 h1) --Caso extremo [4 , +infinito)
+           ~?= [  Casillero infinitoNegativo 0 0 0,
+                  Casillero 0 2 0 0,
+                  Casillero 2 4 0 0,
+                  Casillero 4 infinitoPositivo 1 100 -- El 100% de los valores están acá
+                ],
+          casilleros (agregar 1 (agregar 2 h1)) --Caso aplicado 2 veces la funcion 
+            ~?= [ Casillero infinitoNegativo 0 0 0,
+                  Casillero 0 2 1 50, --El 50% de los valores están acá
+                  Casillero 2 4 1 50, --El 50% de los valores están acá
+                  Casillero 4 infinitoPositivo 0 0 
                 ]
          
         ]
@@ -112,8 +135,13 @@ testsAgregar =
 testsHistograma :: Test
 testsHistograma =
   test
-    [ histograma 4 (1, 5) [1, 2, 3] ~?= agregar 3 (agregar 2 (agregar 1 (vacio 4 (1, 5))))
+    [ histograma 4 (1, 5) [1, 2, 3] ~?= agregar 3 (agregar 2 (agregar 1 (vacio 4 (1, 5)))),
      
+      histograma 2 (1.5, 3) [1.5, 3.75, 2.225] ~?= agregar 2.225 (agregar 3.75 (agregar 1.5 (vacio 2 (1.5, 3)))), --Caso con numeros con coma en rangos y lista
+
+      histograma 3 (-6, -1) [-8, -4, 1] ~?= agregar 1 (agregar -4 (agregar -8 (vacio 3 (-6, -1)))), --Caso negativos en rango y lista
+
+      histograma 3 (1, 3) [] ~?= vacio 3 (1, 3) -- Caso lista vacia
     ]
 
 testsCasilleros :: Test
@@ -132,8 +160,19 @@ testsCasilleros =
               Casillero 2.0 4.0 1 100.0,
               Casillero 4.0 6.0 0 0.0,
               Casillero 6.0 infinitoPositivo 0 0.0
-            ]
-
+            ],
+      casilleros (histograma 2 (1,5) [3]) --Caso con la funcion histograma
+        -?= [ Casillero infinitoNegativo 1.0 0 0.0,
+              Casillero 1.0 3.0 0 0.0,
+              Casillero 3.0 5.0 1 100.0,
+              Casillero .0 infinitoPositivo 0 0.0
+            ],
+       casilleros (histograma 2 (1,5) [3, 2, -1, -2]) --Caso con dif porcentajes
+        -?= [ Casillero infinitoNegativo 1.0 2 50.0,
+              Casillero 1.0 3.0 1 25.0,
+              Casillero 3.0 5.0 1 25.0,
+              Casillero 5.0 infinitoPositivo 0 0.0
+            ]      
     ]
 
 testsRecr :: Test
