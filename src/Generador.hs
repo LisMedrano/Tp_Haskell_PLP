@@ -128,15 +128,3 @@ rango95 xs = (promedio - s, promedio + s)
 
 testRango95 :: (Float, Float) -> Int -> Gen -> (Float, Float)
 testRango95 (l, u) n g = rango95 $ fst $ muestra (dameUno (l, u)) n g
-
--- >>> conGenNormal (testRango95 (1, 5) 100000)
--- (0.9996053,4.9987354)
-
--- >>> testRango95 (1, 5) 100 genFijo
--- (2.0,4.0)
-
--- >>> testRango95 (1, 5) 100000 (genNormalConSemilla 0)
--- (1.0097816,4.998564)
-
--- >>> testRango95 (1, 5) 100000 (genNormalConSemilla 1)
--- (0.9968296,4.995655)

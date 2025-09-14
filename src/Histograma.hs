@@ -26,7 +26,6 @@ where
 import Util ( actualizarElem, infinitoNegativo, infinitoPositivo )
 import Data.List (zipWith4)
 
-
 data Histograma = Histograma Float Float [Int]
   deriving (Show, Eq)
 
@@ -34,15 +33,17 @@ data Histograma = Histograma Float Float [Int]
 -- valores en el rango y 2 casilleros adicionales para los valores fuera del rango.
 -- Require que @l < u@ y @n >= 1@.
 vacio :: Int -> (Float, Float) -> Histograma
-vacio n (l, u) = Histograma l ((u - l) / fromIntegral n) (replicate (n + 2) 0)
--- 
+vacio n (l, u) = Histograma l t cs
+  where
+  t = ((u - l) / fromIntegral n) -- 't' es el tamaño de cada intervalo
+  cs = (replicate (n + 2) 0) -- 'cs' es la lista con la cantidad de valores de cada casillero (se inicializan en 0)
 
 -- | Agrega un valor al histograma.
 agregar :: Float -> Histograma -> Histograma
-agregar x (Histograma i t xs) = Histograma i t (actualizarElem obtenerIndice (+1) xs)
+agregar x (Histograma i t cs) = Histograma i t (actualizarElem obtenerIndice (+1) cs)
   where 
-  obtenerIndice = entreRango (1 + fromIntegral (floor ((x-i) / t)))
-  entreRango indice = min (length xs - 1) (max 0 indice) -- Asegura que el indice no se vaya del rango [0, length xs)
+  obtenerIndice = entreRango (1 + fromIntegral (floor ((x - i) / t)))
+  entreRango indice = min (length cs - 1) (max 0 indice) -- Asegura que el indice no se vaya del rango [0, length cs)
 
 -- | Arma un histograma a partir de una lista de números reales con la cantidad de casilleros y rango indicados.
 histograma :: Int -> (Float, Float) -> [Float] -> Histograma
@@ -77,4 +78,4 @@ casilleros (Histograma i t cs) = zipWith4 Casillero limiteInf limiteSup cs porce
     n = length cs - 2
     limiteInf = [infinitoNegativo] ++ [ i + fromIntegral k * t | k <- [0 .. n]]
     limiteSup = [ i + fromIntegral k * t | k <- [0 .. n] ] ++ [infinitoPositivo]
-    porcentaje = map (\c -> (fromIntegral c / fromIntegral (max 1 cantidadesTotal)) * 100) cs -- el (max 1 cantTotal) es para que no se indefina la división
+    porcentaje = map (\c -> (fromIntegral c / fromIntegral (max 1 cantidadesTotal)) * 100) cs -- el (max 1 cantidadesTotal) es para que no se indefina la división

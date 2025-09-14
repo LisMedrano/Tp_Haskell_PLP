@@ -24,36 +24,32 @@ data Expr
 
 -- recrExpr :: ... anotar el tipo ...
 recrExpr :: (Float->b) -> (Float->Float->b) -> (b->b->Expr->Expr->b) -> (b->b->Expr->Expr->b) -> (b->b->Expr->Expr->b) -> (b->b->Expr->Expr->b) -> Expr -> b
-recrExpr cConst cRango cSuma cResta cMult cDiv t = case t of
+recrExpr cConst cRango cSuma cResta cMult cDiv e = case e of
   Const x -> cConst x
-  Rango x y -> cRango x y
-  Suma r1 r2 -> cSuma (rec r1) (rec r2) r1 r2
-  Resta r1 r2 -> cResta (rec r1) (rec r2) r1 r2
-  Mult r1 r2 -> cMult (rec r1) (rec r2) r1 r2
-  Div r1 r2 -> cDiv (rec r1) (rec r2) r1 r2
+  Rango a b -> cRango a b
+  Suma e1 e2 -> cSuma (rec e1) (rec e2) e1 e2
+  Resta e1 e2 -> cResta (rec e1) (rec e2) e1 e2
+  Mult e1 e2 -> cMult (rec e1) (rec e2) e1 e2
+  Div e1 e2 -> cDiv (rec e1) (rec e2) e1 e2
   where rec = recrExpr cConst cRango cSuma cResta cMult cDiv
-
-
 
 -- foldExpr :: ... anotar el tipo ...
 foldExpr :: (Float->b) -> (Float->Float->b) -> (b->b->b) -> (b->b->b) -> (b->b->b) -> (b->b->b) -> Expr -> b
-foldExpr cConst cRango cSuma cResta cMult cDiv t = case t of
+foldExpr cConst cRango cSuma cResta cMult cDiv e = case e of
   Const x -> cConst x
-  Rango x y -> cRango x y
-  Suma r1 r2 -> cSuma (rec r1) (rec r2)
-  Resta r1 r2 -> cResta (rec r1) (rec r2)
-  Mult r1 r2 -> cMult (rec r1) (rec r2)
-  Div r1 r2 -> cDiv (rec r1) (rec r2)
+  Rango a b -> cRango a b
+  Suma e1 e2 -> cSuma (rec e1) (rec e2)
+  Resta e1 e2 -> cResta (rec e1) (rec e2)
+  Mult e1 e2 -> cMult (rec e1) (rec e2)
+  Div e1 e2 -> cDiv (rec e1) (rec e2)
   where rec = foldExpr cConst cRango cSuma cResta cMult cDiv
 
 -- | Evaluar expresiones dado un generador de números aleatorios
-eval :: Expr -> G Float -- eval :: Expr → Gen → (Float, Gen)
+eval :: Expr -> G Float
 eval = foldExpr (\x g ->(x, g)) (\a b g -> dameUno (a,b) g) (operacion (+)) (operacion (-)) (operacion (*)) (operacion (/))
 
-
-operacion :: (Float -> Float -> Float) -> (Gen -> (Float, Gen)) -> (Gen -> (Float, Gen))-> (Gen -> (Float, Gen))
+operacion :: (Float -> Float -> Float) -> G Float -> G Float -> Gen -> (Float, Gen)
 operacion op fl fr g0 = (\(vL, g1) ->(\(vR, g2) -> (op vL vR, g2)) (fr g1)) (fl g0)
-
 
 -- | @armarHistograma m n f g@ arma un histograma con @m@ casilleros
 -- a partir del resultado de tomar @n@ muestras de @f@ usando el generador @g@.
@@ -64,27 +60,7 @@ armarHistograma m n f g = (\(xs,g1)-> (\(a,b)-> (histograma m (a,b) xs, g1) ) (r
 -- devuelve un histograma con @m@ casilleros y rango calculado con @rango95@ para abarcar el 95% de confianza de los valores.
 -- @n@ debe ser mayor que 0.
 evalHistograma :: Int -> Int -> Expr -> G Histograma
-evalHistograma m n expr = armarHistograma m n (eval expr)
-
--- >>> evalHistograma 3 4 ((Rango 1 3)) (genNormalConSemilla 4)
--- (Histograma 1.2331247 0.34306774 [0,1,2,1,0],<Gen>)
-
--- >>> evalHistograma 3 4 (Const 2) (genNormalConSemilla 4)
--- (Histograma 1.0 0.6666667 [0,0,4,0,0],<Gen>)
-
--- >>> evalHistograma 3 4 ((Rango 2 2)) (genNormalConSemilla 4)
--- (Histograma 1.0 0.6666667 [0,0,4,0,0],<Gen>)
-
--- >>> (\(x,y) -> take 4 [(x,x+i*y) | i <- [1..]]) (1.0, 0.6666667)
--- [(1.0,1.6666667),(1.0,2.3333334),(1.0,3.0000001),(1.0,3.6666668)]
-
-
--- Podemos armar histogramas que muestren las n evaluaciones en m casilleros.
--- >>> evalHistograma 11 10 (Suma (Rango 1 5) (Rango 100 105)) (genNormalConSemilla 0)
--- (Histograma 102.005486 0.6733038 [1,0,0,0,1,3,1,2,0,0,1,1,0],<Gen>)
-
--- >>> evalHistograma 11 10000 (Suma (Rango 1 5) (Rango 100 105)) (genNormalConSemilla 0)
--- (Histograma 102.273895 0.5878462 [239,288,522,810,1110,1389,1394,1295,1076,793,520,310,254],<Gen>)
+evalHistograma m n e = armarHistograma m n (eval e)
 
 -- | Mostrar las expresiones, pero evitando algunos paréntesis innecesarios.
 -- En particular queremos evitar paréntesis en sumas y productos anidados.
@@ -93,10 +69,14 @@ mostrar e = recrExpr show (\a b -> show a ++ "~" ++ show b)
                      (\str1 str2 e1 e2 -> maybeParen (esConstrRecursivoDistintoDe e1 CESuma) str1 ++ " + " ++ maybeParen (esConstrRecursivoDistintoDe e2 CESuma) str2)
                      (\str1 str2 e1 e2 -> maybeParen (esConstrRecursivo e1) str1 ++ " - " ++ maybeParen (esConstrRecursivo e2) str2)
                      (\str1 str2 e1 e2 -> maybeParen (esConstrRecursivoDistintoDe e1 CEMult) str1 ++ " * " ++ maybeParen (esConstrRecursivoDistintoDe e2 CEMult) str2)
-                     (\str1 str2 e1 e2 -> maybeParen (esConstrRecursivo e1) str1 ++ " / " ++ maybeParen (esConstrRecursivo e2) str2) e
+                     (\str1 str2 e1 e2 -> maybeParen (esConstrRecursivo e1) str1 ++ " / " ++ maybeParen (esConstrRecursivo e2) str2)
+                     e
   where 
     esConstrRecursivo e = constructor e /= CEConst && constructor e /= CERango
     esConstrRecursivoDistintoDe e c = esConstrRecursivo e && constructor e /= c
+    
+    -- Para los constructores no recursivos usamos la función show dada
+    -- En los constructores recursivos diferenciamos los casos de Multiplicación y Suma para no poner paréntesis innecesarios
 
 data ConstructorExpr = CEConst | CERango | CESuma | CEResta | CEMult | CEDiv
   deriving (Show, Eq)
