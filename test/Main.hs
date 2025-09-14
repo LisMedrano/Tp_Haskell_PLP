@@ -95,6 +95,7 @@ testsVacio =
 testsAgregar :: Test
 testsAgregar =
   let h0 = vacio 3 (0, 6)
+  let h1 = vacio 2 (0, 4) 
    in test
         [ casilleros (agregar 0 h0)
             ~?= [ Casillero infinitoNegativo 0 0 0,
@@ -116,19 +117,19 @@ testsAgregar =
                   Casillero 2 4 0 0,
                   Casillero 4 6 0 0,
                   Casillero 6 infinitoPositivo 0 0
-                ]------------,
---          casilleros (agregar 6 h1) --Caso extremo [4 , +infinito)
---           ~?= [  Casillero infinitoNegativo 0 0 0,
---                  Casillero 0 2 0 0,
---                  Casillero 2 4 0 0,
---                  Casillero 4 infinitoPositivo 1 100 -- El 100% de los valores están acá
---                ],
---          casilleros (agregar 1 (agregar 2 h1)) --Caso aplicado 2 veces la funcion 
---            ~?= [ Casillero infinitoNegativo 0 0 0,
---                  Casillero 0 2 1 50, --El 50% de los valores están acá
---                  Casillero 2 4 1 50, --El 50% de los valores están acá
---                  Casillero 4 infinitoPositivo 0 0 
---                ]
+                ],
+          casilleros (agregar 6 h1) --Caso extremo [4 , +infinito)
+           ~?= [  Casillero infinitoNegativo 0 0 0,
+                  Casillero 0 2 0 0,
+                  Casillero 2 4 0 0,
+                  Casillero 4 infinitoPositivo 1 100 -- El 100% de los valores están acá
+                ],
+          casilleros (agregar 1 (agregar 2 h1)) --Caso aplicado 2 veces la funcion 
+            ~?= [ Casillero infinitoNegativo 0 0 0,
+                  Casillero 0 2 1 50, --El 50% de los valores están acá
+                  Casillero 2 4 1 50, --El 50% de los valores están acá
+                  Casillero 4 infinitoPositivo 0 0 
+                ]
          
         ]
 
@@ -161,12 +162,12 @@ testsCasilleros =
               Casillero 4.0 6.0 0 0.0,
               Casillero 6.0 infinitoPositivo 0 0.0
             ],
---      casilleros (histograma 2 (1,5) [3]) --Caso con la funcion histograma
---        ~?= [ Casillero infinitoNegativo 1.0 0 0.0,
---              Casillero 1.0 3.0 0 0.0,
---              Casillero 3.0 5.0 1 100.0,
---              Casillero .0 infinitoPositivo 0 0.0
---            ],
+      casilleros (histograma 2 (1,5) [3]) --Caso con la funcion histograma
+        ~?= [ Casillero infinitoNegativo 1.0 0 0.0,
+              Casillero 1.0 3.0 0 0.0,
+              Casillero 3.0 5.0 1 100.0,
+              Casillero 5.0 infinitoPositivo 0 0.0
+            ],
        casilleros (histograma 2 (1,5) [3, 2, -1, -2]) --Caso con dif porcentajes
         ~?= [ Casillero infinitoNegativo 1.0 2 50.0,
               Casillero 1.0 3.0 1 25.0,

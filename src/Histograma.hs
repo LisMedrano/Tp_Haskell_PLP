@@ -39,7 +39,10 @@ vacio n (l, u) = Histograma l ((u - l) / fromIntegral n) (replicate (n + 2) 0)
 
 -- | Agrega un valor al histograma.
 agregar :: Float -> Histograma -> Histograma
-agregar x (Histograma i t xs) = Histograma i t (actualizarElem (min (length xs - 1) (max 0 (1 + fromIntegral (floor ((x - i) / t)))))  (+1) xs)
+agregar x (Histograma i t xs) = Histograma i t (actualizarElem obtenerIndice (+1) xs)
+  where 
+  obtenerIndice = entreRango (1 + fromIntegral (floor ((x-i) / t)))
+  entreRango indice = min (length xs - 1) (max 0 indice) -- Asegura que el indice no se vaya del rango [0, length xs)
 
 -- | Arma un histograma a partir de una lista de números reales con la cantidad de casilleros y rango indicados.
 histograma :: Int -> (Float, Float) -> [Float] -> Histograma
