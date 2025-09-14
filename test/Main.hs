@@ -37,6 +37,7 @@ allTests =
       
     ]
 
+-- Ej 1
 testsAlinearDerecha :: Test
 testsAlinearDerecha =
   test
@@ -51,6 +52,7 @@ testsAlinearDerecha =
       alinearDerecha 12 " conEspacio" ~?= "  conEspacio"
     ]
 
+-- Ej 2
 testsActualizarElem :: Test
 testsActualizarElem =
   test
@@ -63,6 +65,7 @@ testsActualizarElem =
       actualizarElem 0 (+ 1) [] ~?= []
     ]
 
+-- Ej 3
 testsVacio :: Test
 testsVacio =
   test
@@ -92,6 +95,7 @@ testsVacio =
             ] 
     ]
 
+-- Ej 4
 testsAgregar :: Test
 testsAgregar =
   let h0 = vacio 3 (0, 6) 
@@ -134,6 +138,7 @@ testsAgregar =
          
         ]
 
+-- Ej 5
 testsHistograma :: Test
 testsHistograma =
   test
@@ -146,6 +151,7 @@ testsHistograma =
       histograma 3 (1, 3) [] ~?= vacio 3 (1, 3) -- Caso lista vacia
     ]
 
+-- Ej 6
 testsCasilleros :: Test
 testsCasilleros =
   test
@@ -177,6 +183,7 @@ testsCasilleros =
             ]      
     ]
 
+-- Ej 7
 testsRecr :: Test
 testsRecr =
   test
@@ -196,9 +203,8 @@ testsRecr =
     hayNodoConSubarbolesIguales = recrExpr (const False) (\_ _ -> False) operacion operacion operacion operacion
                                   where
                                     operacion reci recd i d =  reci || recd || (i==d) 
-                                                                          
 
-
+-- Ej 7
 testsFold :: Test
 testsFold =
   test
@@ -210,9 +216,9 @@ testsFold =
     tamFold :: Expr -> Int 
     tamFold = foldExpr (const 1) (\_ _ -> 1) operacion operacion operacion operacion
                                   where
-                                    operacion reci recd = 1 + reci + recd  
+                                    operacion reci recd = 1 + reci + recd
 
-
+-- Ej 8
 testsEval :: Test
 testsEval =
   test
@@ -230,6 +236,7 @@ testsEval =
       fst (eval (Rango 2 2) (genNormalConSemilla 4))
     ]
 
+-- Ej 9
 testsArmarHistograma :: Test
 testsArmarHistograma =
   test
@@ -256,6 +263,7 @@ testsArmarHistograma =
        Casillero 3.0 infinitoPositivo 0 0.0]
     ]
 
+-- Ej 10
 testsEvalHistograma :: Test
 testsEvalHistograma =
   test
@@ -299,6 +307,7 @@ testsParse =
       parse "   1    " ~?= Const 1.0
     ]
 
+-- Ej 11
 testsMostrar :: Test
 testsMostrar =
   test
@@ -323,7 +332,13 @@ testsMostrar =
       mostrar (Suma (Mult (Suma (Const 1) (Const 2)) (Const 3)) (Const 4))
         ~?= "((1.0 + 2.0) * 3.0) + 4.0",
       mostrar (Mult (Suma (Suma (Const 1) (Const 2)) (Const 3)) (Const 4))
-        ~?= "(1.0 + 2.0 + 3.0) * 4.0"
+        ~?= "(1.0 + 2.0 + 3.0) * 4.0",
+      
+      -- Tests propios
+      mostrar (parse "1") ~?= "1.0",
+      mostrar (parse "1+2") ~?= "1.0 + 2.0",
+      mostrar (parse "1*(1~2)") ~?= "1.0 * 1.0~2.0",
+      mostrar (parse "-1 / (3-1)") ~?= "-1.0 / (3.0 - 1.0)"
     ]
 
 testsMostrarFloat :: Test
