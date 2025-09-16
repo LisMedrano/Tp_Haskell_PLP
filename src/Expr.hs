@@ -46,15 +46,15 @@ foldExpr cConst cRango cSuma cResta cMult cDiv e = case e of
 
 -- | Evaluar expresiones dado un generador de números aleatorios
 eval :: Expr -> G Float
-eval = foldExpr (\x g ->(x, g)) (\a b g -> dameUno (a,b) g) (operacion (+)) (operacion (-)) (operacion (*)) (operacion (/))
+eval = foldExpr (\x g -> (x, g)) (\a b g -> dameUno (a, b) g) (operacion (+)) (operacion (-)) (operacion (*)) (operacion (/))
 
 operacion :: (Float -> Float -> Float) -> G Float -> G Float -> Gen -> (Float, Gen)
-operacion op fl fr g0 = (\(vL, g1) ->(\(vR, g2) -> (op vL vR, g2)) (fr g1)) (fl g0)
+operacion op fl fr g0 = (\(vL, g1) -> (\(vR, g2) -> (op vL vR, g2)) (fr g1)) (fl g0)
 
 -- | @armarHistograma m n f g@ arma un histograma con @m@ casilleros
 -- a partir del resultado de tomar @n@ muestras de @f@ usando el generador @g@.
-armarHistograma :: Int -> Int -> G Float -> G Histograma -- armarHistograma :: Int -> Int -> (Gen -> (Float, Gen)) -> (Gen -> (Histograma, Gen))
-armarHistograma m n f g = (\(xs,g1)-> (\(a,b)-> (histograma m (a,b) xs, g1) ) (rango95 xs)) (muestra f n g)
+armarHistograma :: Int -> Int -> G Float -> Gen -> (Histograma, Gen)
+armarHistograma m n f g = (\(xs, g1)-> (\(a, b)-> (histograma m (a, b) xs, g1) ) (rango95 xs)) (muestra f n g)
 
 -- | @evalHistograma m n e g@ evalúa la expresión @e@ usando el generador @g@ @n@ veces
 -- devuelve un histograma con @m@ casilleros y rango calculado con @rango95@ para abarcar el 95% de confianza de los valores.
